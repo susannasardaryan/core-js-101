@@ -200,10 +200,12 @@ function extractEmails(str) {
  *             '┌──────────┐\n'+
  *  (12,3) =>  '│          │\n'+
  *             '└──────────┘\n'
- *
+ *┌───
  */
 function getRectangleString(width, height) {
-  return '┌' + '-'.repeat(width - 2) + '┐' + '\n' + ('│' + ' '.repeat(width - 2) + '│\n').repeat(height - 2) + '└' + '-'.repeat(width - 2) + '┘';
+  const rectT = '─'.repeat(width - 2);
+  const rectB = `│${' '.repeat(width - 2)}│\n`.repeat(height - 2);
+  return `┌${rectT}┐\n${rectB}└${rectT}┘\n`;
 }
 
 
@@ -225,14 +227,17 @@ function getRectangleString(width, height) {
  */
 function encodeToRot13(str) {
   let newstr = '';
-  str.split("").forEach((el, i) => {
-    if (str.charCodeAt(i) > 65 && str.charCodeAt(i) < 123) {
-      let k = str.charCodeAt(i) > 109 || (str.charCodeAt(i) > 77 && str.charCodeAt(i) < 91) ?
-        str.charCodeAt(i) - 13 : str.charCodeAt(i) + 13;
+  let k;
+  str.split('').forEach((el, i) => {
+    if (str.charCodeAt(i) > 64 && str.charCodeAt(i) < 123) {
+      if (str.charCodeAt(i) > 109 || (str.charCodeAt(i) > 77 && str.charCodeAt(i) < 91)) {
+        k = str.charCodeAt(i) - 13;
+      } else {
+        k = str.charCodeAt(i) + 13;
+      }
       newstr += String.fromCharCode(k);
     } else newstr += el;
-
-  })
+  });
   return newstr;
 }
 
@@ -250,7 +255,7 @@ function encodeToRot13(str) {
  *   isString(new String('test')) => true
  */
 function isString(value) {
-  return typeof value === 'string';
+  return typeof value === 'string' || value instanceof String;
 }
 
 
@@ -279,27 +284,27 @@ function isString(value) {
  *   'K♠' => 51
  */
 function getCardId(value) {
-  let result=0;
-  let values = {
+  let result = 0;
+  const values = {
     '♣': 0,
     '♦': 13,
     '♥': 26,
     '♠': 39,
-    'A': 0,
-    'J':10,
-    'Q':11,
-    'K':12,
-  }
-  if(!isNaN(+value.charAt(0))){
-    result += +value.charAt(0)-1;
-  }else{
-    result += values[value.charAt(0)];
+  };
+
+  if (+value.charAt(0)) {
+    result += value.length < 3 ? +value.charAt(0) - 1 : +value.slice(0, 2) - 1;
+  } else if (value.charAt(0) === 'J') {
+    result += 10;
+  } else if (value.charAt(0) === 'K') {
+    result += 12;
+  } else if (value.charAt(0) === 'Q') {
+    result += 11;
   }
 
-  result += values[value.charAt(1)];
+  result += value.length < 3 ? values[value.charAt(1)] : values[value.charAt(2)];
   return result;
 }
-
 
 module.exports = {
   concatenateStrings,
