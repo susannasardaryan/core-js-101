@@ -36,15 +36,8 @@ function findElement(arr, value) {
  *    5 => [ 1, 3, 5, 7, 9 ]
  */
 function generateOdds(len) {
-  const arr = [];
-  let k = 1;
-  for (let i = 0; i < len; i += 1) {
-    arr[i] = k;
-    k += 2;
-  }
-  return arr;
+  return Array.from({ length: len }, (_, i) => 2 * i + 1);
 }
-
 
 /**
  * Returns the doubled array - elements of the specified array
@@ -205,11 +198,7 @@ function getTail(arr, n) {
  *    +'30,31,32,33,34'
  */
 function toCsvText(arr) {
-  let str = '';
-  arr.forEach((el) => {
-    str += `${el.toString()}\n`;
-  });
-  return str.trim();
+  return arr.reduce((el, acc) => `${el.toString()}\n${acc}`, '').trim();
 }
 
 /**
@@ -279,8 +268,9 @@ function getSecondItems(arr) {
  *  [ 'a', 'b', 'c', null ] => [ 'a', 'b','b', 'c','c','c',  null,null,null,null ]
  *  [ 1,2,3,4,5 ] => [ 1, 2,2, 3,3,3, 4,4,4,4, 5,5,5,5,5 ]
  */
-function propagateItemsByPositionIndex(/* arr */) {
-  throw new Error('Not implemented');
+
+function propagateItemsByPositionIndex(arr) {
+  return arr.map((el, i) => Array(i + 1).fill(el)).flat();
 }
 
 
@@ -366,11 +356,7 @@ function getItemsSum(arr) {
  *  [ null, undefined, NaN, false, 0, '' ]  => 6
  */
 function getFalsyValuesCount(arr) {
-  let count = 0;
-  arr.forEach((el) => {
-    count += el ? 0 : 1;
-  });
-  return count;
+  return arr.reduce((acc, el) => acc + (el ? 0 : 1), 0);
 }
 
 /**
@@ -465,10 +451,9 @@ function sortCitiesArray(arr) {
  *           [0,0,0,0,1]]
  */
 function getIdentityMatrix(n) {
-  const result = Array(n).fill(0).map(() => Array(n).fill(0));
-  for (let i = 0; i < n; i += 1) {
-    result[i][i] = 1;
-  }
+  const result = Array.from({ length: n }, (__, i) => (
+    Array.from({ length: n }, (_, j) => (i === j ? 1 : 0))
+  ));
   return result;
 }
 
@@ -536,13 +521,10 @@ function distinct(arr) {
  *   }
  */
 function group(array, keySelector, valueSelector) {
-  const result = new Map();
-
-  array.forEach((el) => {
-    result.set(keySelector(el), [...result.get(keySelector(el)) || [], valueSelector(el)]);
-  });
-
-  return result;
+  return array.reduce((acc, el) => {
+    const value = [...acc.get(keySelector(el)) || [], valueSelector(el)];
+    return acc.set(keySelector(el), value);
+  }, new Map());
 }
 
 
@@ -602,12 +584,14 @@ function getElementByIndexes(arr, indexes) {
  *
  */
 function swapHeadAndTail(arr) {
-  const result = arr;
-  const mid = Math.round(result.length / 2);
-  for (let i = 0; i <= result.length / 2 - 1; i += 1) {
-    [result[i], result[mid + i]] = [result[mid + i], result[i]];
-  }
-  return result;
+  const len = arr.length;
+  const mid = Math.floor(len / 2);
+
+  const head = arr.slice(0, mid);
+  const tail = arr.slice(len % 2 === 0 ? mid : mid + 1);
+  const middle = len % 2 === 0 ? [] : [arr[mid]];
+
+  return [...tail, ...middle, ...head];
 }
 
 
